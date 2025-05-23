@@ -14,8 +14,8 @@ client = Cerebras(
 
 ############################## PROMPTS ##############################
 
-GENERIC_PROMPT = """
-Please do not include any think portions in your response.
+ATTITUDE_PROMPT = """
+Please do not include any think portions in your response and limit your response to under 50 words.
 
 Your response will be verbalized into human-like speech, so you must respond as if you were
 conversing with the client. As a coach, you must talk to the client in a compassionate and open-minded way
@@ -24,8 +24,9 @@ Instead of using terminology such as "you should have," "you must," use suggesti
 "we may see great progress if you ...," "it may serve you to..." In moments where slight pressure
 and discipline is needed to redirect the client back onto track, do so considerately.
 Please consult documented coaching advices and conversations online to guide your response.
+"""
 
-You should first check in with the client regarding the last session.
+GENERIC_PROMPT = ATTITUDE_PROMPT + """
 Specifically, you will ask how the client is doing emotionally,
 and then transition into briefly recapping the issues the client wanted to resolve and the solutions you suggested.
 You will then ask follow-up questions about how the issues have changed (or not changed) since the last sessions
@@ -35,9 +36,21 @@ Conclude the session naturally by asking them if they wanted to continue explori
 based on the reported progress or if they wanted to talk about something new.
 If so, the client will start a new session with you. During this session, your role is to actively
 listen to their stories, recognize their struggles, and provide advice by leveraging scientifically proven tips.
-
-Here is the data from their last session:
 """
+
+first_prompt = """
+
+The user is approaching you for the first time. Instead of recapping a non-existent prior seesion,
+please greet your client and use their survey results to figure out what the main goals that they
+want to achieve as an outcome of this coaching experience are.
+
+Found below is the survey result:
+"""
+
+revisit_prompt = """
+The user has visited you before. Please look at their past data found below and follow up on their progress.
+"""
+
 
 exercise = """
 Hello there! You are a exercise coach who will advise incoming clients on their physical
@@ -62,22 +75,34 @@ and mental health habits such as nutrition and diet, workout routine, daily phys
 Their hobbies are as follow:
 """
 
+summarize_prompt = """
+
+Please summarize the user's input data regarding their health habits, lifestyle, exercise routine
+and the challenges they have been facing in less than 50 words. Do not format your response
+with bolding of head titles. Rather, keep it as one section of contiguous text.
+
+"""
+
 COACH_PROMPT = {
-    "exercise": exercise,
+    "health": exercise,
     "career": work_school,
     "hobbies": hobbies
 }
 
 #################### Functions for AI Interface ####################
-def generate_prompt(coach, user_data, last_session_data):
+def generate_prompt(coach, user_data, new_client=False):
     """
     Returns a prompt (str) that can be used to simulate
     a check-in and coaching session with the coach of interest.
     """
 
-    return COACH_PROMPT[coach] + user_data + GENERIC_PROMPT + last_session_data
+    general = COACH_PROMPT[coach] + GENERIC_PROMPT
 
+    return general + revisit_prompt + user_data if not new_client else general + first_prompt + user_data
 
+def initialize_convo(coach, user_data, new_client=False):
+    prompt = generate_prompt(coach, user_data, new_client)
+    return chat_request(prompt)
 
 def chat_request(content):
     """
@@ -99,6 +124,8 @@ def chat_request(content):
     new_response = ''
     count = 0
     ignore = True
+
+    # ignores think section
     for char in response:
         if char == '<':
             count += 1
@@ -119,9 +146,9 @@ elevenlabs = ElevenLabs(
   api_key=os.getenv("ELEVENLABS_API_KEY"),
 )
 
-tone_to_voice = {}
+tone_to_voice = {"health": "JBFqnCBsd6RMkjVDRZzb"}
 
-def vocalize_text(response):
+def vocalize_text(response, voice):
     """
     Given a string of text, plays the audio backs to the user.
     Optional arguments: tone of voice
@@ -130,7 +157,7 @@ def vocalize_text(response):
     """
     audio = elevenlabs.text_to_speech.convert(
         text=response,
-        voice_id="JBFqnCBsd6RMkjVDRZzb",
+        voice_id=tone_to_voice[voice],
         model_id="eleven_multilingual_v2",
         output_format="mp3_44100_128",
     )
@@ -140,7 +167,7 @@ def vocalize_text(response):
 if __name__ == "__main__":
     # comp = chat_request("Hey there! I am struggling with keeping up with regular exercises recently" \
     # "do you have any tips as to how I can get back on track?")
-    comp = chat_request(exercise + GENERIC_PROMPT)
+    comp = initialize_convo("health", "On keto diet", True)
 
     print(comp)
     # vocalize_text(comp)
