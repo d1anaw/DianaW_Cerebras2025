@@ -220,21 +220,24 @@ def main():
             if screen.display == screen.islands[2]: # hobbies
                 curr_coach = hobbies_coach
                 topic = "hobbies"
+            print(f'{topic=}')
             # initialize convo
 
             curr_coach.update(win)
+            pygame.display.update()
 
             # start session
             if not screen.popup_status:
+
                 if user.visits == 0:
                     new_client = True
                 else:
                     new_client = False
 
                 intro = agent_interface.initialize_convo(topic, user.data, new_client)
-                user.visits += 1
                 print(f'{intro=}')
-                # agent_interface.vocalize_text(intro, "health")
+                user.visits += 1
+                agent_interface.vocalize_text(intro, topic)
 
             # listen to user
             user_input = screen.generate_popup(win, CLOCK, MANAGER)
@@ -242,7 +245,7 @@ def main():
             if user_input is not None: # user decides to ask
                 response = agent_interface.chat_request(agent_interface.ATTITUDE_PROMPT + user_input)
                 print(f'{response=}')
-                # agent_interface.vocalize_text(response, "health")
+                agent_interface.vocalize_text(response, topic)
 
         pygame.display.update()
 
