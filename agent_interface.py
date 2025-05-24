@@ -146,7 +146,10 @@ elevenlabs = ElevenLabs(
   api_key=os.getenv("ELEVENLABS_API_KEY"),
 )
 
-tone_to_voice = {"health": "JBFqnCBsd6RMkjVDRZzb"}
+tone_to_voice = {"health": "0mevMNFMwHxBOUTpeMGN",
+                 "career": "kdmDKE6EkgrWrrykO9Qt",
+                 "hobbies": "9q9xpGHwmkXdA4JI72IU"
+                 }
 
 def vocalize_text(response, voice):
     """

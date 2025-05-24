@@ -82,47 +82,16 @@ class UserInfo():
         self.visits = 0
         self.data = ''
 
-    def get_data(self, topic):
-        """
-        Returns the data for the topic of interest.
-        """
-        str_data = ''
-        for key, val in self.data[topic]:
-            str_data += 'My' + key + "data is:" + str(val)
-        return str_data
-
 class Figure():
     def __init__(self, image, x=50, y=50):
         self.x = x
         self.y = y
         self.image = pygame.image.load(image)
 
-    def update(self, win, vel=10):
-        """
-        Moves a figure according to arrow keys pressed.
-        Constrains figure to be within bounds of game board.
-        """
-        keys = pygame.key.get_pressed()
-        possible_keys = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]
-        # nonlocal x, y
-        if keys[pygame.K_LEFT]:
-            if (new := self.x - vel) >= 5:
-                self.x = new
-        if keys[pygame.K_RIGHT]:
-            if (new := self.x + vel) <= 490:
-                self.x = new
-        if keys[pygame.K_UP]:
-            if (new := self.y - vel) >= 5:
-                self.y = new
-        if keys[pygame.K_DOWN]:
-            if (new := self.y + vel) <= 490:
-                self.y = new
-
-        win.blit(self.image, (self.x, self.y))
 
 class User(Figure):
     def __init__(self):
-        Figure.__init__(self, "images/beaver.png")
+        # Figure.__init__(self, "images/beaver.png") # no longer used, user could move beaver around on island
         UserInfo.__init__(self)
 
 class Coach(Figure):
@@ -133,7 +102,7 @@ class Coach(Figure):
         image = 'images/' + island + '_coach.png'
         super().__init__(image, *self.coach_locations[island])
 
-    def update_figure(self, win):
+    def update(self, win):
         win.blit(self.image, (self.x, self.y))
 
 def first_visit(win, clock, manager):
