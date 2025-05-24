@@ -26,11 +26,9 @@ class HomeScreen(Screen):
                 if event.type == pygame_gui.UI_TEXT_ENTRY_FINISHED and event.ui_object_id == "#chat_box":
                     input_text = entry.get_text()
                     entry.kill()
-                    self.popup_on = False
                     return input_text
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     entry.kill()
-                    self.popup_on = False
                     return
                 manager.process_events(event)
 
@@ -39,8 +37,7 @@ class HomeScreen(Screen):
             manager.draw_ui(win)
             pygame.display.update()
 
-    def popup_on(self):
-        return self.popup_status
+
 
     def update(self, win):
         """
@@ -67,9 +64,8 @@ class HomeScreen(Screen):
 
         if self.display not in self.backgrounds and keys[pygame.K_ESCAPE]:
             self.display = self.backgrounds[0]
+            self.popup_status = False
 
-        if keys[pygame.K_q]: # close manual
-            pass
 
         if keys[pygame.K_p]: # view progress page:
             self.display = self.progress_pg
@@ -201,11 +197,11 @@ def main():
 
             # start session
             if not screen.popup_status:
-
                 if user.visits[topic] == 0:
                     new_client = True
                 else:
                     new_client = False
+
 
                 intro = agent_interface.initialize_convo(topic, user.data, new_client)
                 print(f'{intro=}')
