@@ -79,7 +79,11 @@ class HomeScreen(Screen):
 
 class UserInfo():
     def __init__(self):
-        self.visits = 0
+        self.visits = {
+            "health": 0,
+            "career": 0,
+            "hobbies": 0
+        }
         self.data = ''
 
 class Figure():
@@ -198,14 +202,14 @@ def main():
             # start session
             if not screen.popup_status:
 
-                if user.visits == 0:
+                if user.visits[topic] == 0:
                     new_client = True
                 else:
                     new_client = False
 
                 intro = agent_interface.initialize_convo(topic, user.data, new_client)
                 print(f'{intro=}')
-                user.visits += 1
+                user.visits[topic] += 1
                 agent_interface.vocalize_text(intro, topic)
 
             # listen to user
